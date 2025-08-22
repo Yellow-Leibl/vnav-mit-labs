@@ -17,16 +17,17 @@ find_package(geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_executable(frames_publisher_node src/frames_publisher_node.cpp)
-ament_target_dependencies(frames_publisher_node rclcpp std_msgs geometry_msgs tf2 tf2_ros)
+ament_target_dependencies(frames_publisher_node rclcpp std_msgs geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
 target_include_directories(frames_publisher_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
 
 add_executable(plots_publisher_node src/plots_publisher_node.cpp)
-ament_target_dependencies(plots_publisher_node rclcpp std_msgs geometry_msgs visualization_msgs tf2 tf2_ros)
+ament_target_dependencies(plots_publisher_node rclcpp std_msgs geometry_msgs visualization_msgs tf2 tf2_ros tf2_geometry_msgs)
 target_include_directories(plots_publisher_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)

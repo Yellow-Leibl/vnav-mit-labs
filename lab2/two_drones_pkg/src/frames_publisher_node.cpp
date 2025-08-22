@@ -1,5 +1,6 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <iostream>
@@ -13,6 +14,7 @@ class FramesPublisherNode : public rclcpp::Node {
 
   rclcpp::TimerBase::SharedPtr heartbeat;
 
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
   // TODO: Declare a std::unique_ptr<tf2_ros::TransformBroadcaster>
   // ...
 
@@ -22,16 +24,18 @@ class FramesPublisherNode : public rclcpp::Node {
 
     // TODO: Instantiate the Transform Broadcaster
     // ....
+    tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(this);
 
     startup_time = now();
     heartbeat = create_timer(this,
                              get_clock(),
-                             rclcpp::Duration::from_seconds(0.02),
+                             rclcpp::Duration::from_seconds(0.02),// 50Hz
                              std::bind(&FramesPublisherNode::onPublish, this));
     heartbeat->reset();
   }
 
   void onPublish() {
+
     // NOTE: This method is called at 50Hz, due to the timer created on line 25.
 
     //
@@ -42,12 +46,25 @@ class FramesPublisherNode : public rclcpp::Node {
     //   - use the - operator between the current time and startup_time
     //   - convert the resulting Duration to seconds, store result into a double
 
+    auto now = this->now();
+    double time = (now - startup_time).seconds();
     // ...
 
     // Here we declare two geometry_msgs::msg::TransformStamped objects, which
     // need to be populated
     geometry_msgs::msg::TransformStamped world_T_av1;
     geometry_msgs::msg::TransformStamped world_T_av2;
+
+    tf2::Quaternion q1;
+    q1.setRPY(0, 0, time);
+    world_T_av1.transform.rotation = tf2::toMsg(q1);
+    world_T_av1.transform.translation.x = cos(time);
+    world_T_av1.transform.translation.y = sin(time);
+    world_T_av1.transform.translation.z = 0.0;
+
+    world_T_av2.transform.translation.x = sin(time);
+    world_T_av2.transform.translation.y = 0.0;
+    world_T_av2.transform.translation.z = cos(2 * time);
 
     // 2. TODO: Populate the two transforms for the AVs, using the variable "time"
     //    computed above. Specifically:
@@ -67,7 +84,15 @@ class FramesPublisherNode : public rclcpp::Node {
     //    https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Tf2-Main.html
     //    - consider the setRPY method on a tf2::Quaternion for world_T_av1
 
-    // ...
+    world_T_av1.header.stamp = now;
+    world_T_av1.header.frame_id = "world";
+    world_T_av1.child_frame_id = "av1";
+    world_T_av2.header.stamp = now;
+    world_T_av2.header.frame_id = "world";
+    world_T_av2.child_frame_id = "av2";
+
+    tf_broadcaster->sendTransform(world_T_av1);
+    tf_broadcaster->sendTransform(world_T_av2);
 
     // 3. TODO: Publish the transforms, namely:
     //     - world_T_av1 with frame_id "world", child_frame_id "av1"

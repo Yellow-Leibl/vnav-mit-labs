@@ -74,6 +74,18 @@ class PlotsPublisherNode : public rclcpp::Node {
          */
 
         // TODO: fill in here
+        if (!parent->tf_buffer_->canTransform(ref_frame, dest_frame,
+                                                tf2::TimePointZero,
+                                                std::chrono::milliseconds(100))) {
+          RCLCPP_WARN_STREAM(parent->get_logger(),
+                             "Waiting for transform from " << ref_frame << " to " << dest_frame);
+          return;
+        }
+
+        transform = parent->tf_buffer_->lookupTransform(ref_frame, dest_frame,
+                                                        tf2::TimePointZero);
+        
+        
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~  END OF EDIT SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
         while (poses.size() >= buffer_size) poses.pop_front();
