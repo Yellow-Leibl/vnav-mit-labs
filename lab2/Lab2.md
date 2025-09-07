@@ -43,7 +43,7 @@ With the `ros2 launch` command above we have spawned a number of ROS nodes at 
 
 ### 📨 Deliverable 2 - Publishing transforms (30 pts)
 ### 📨 Deliverable 3 - Looking up a transform (30 pts)
-![[Screencast from 22.08.25 05:48:02.webm]]
+![demo](lab2_demo.gif)
 
 ### 📨 Deliverable 4 - Mathematical derivations (25 pts)
 
